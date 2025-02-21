@@ -79,6 +79,24 @@ export function fixImageContent(fragment: HTMLDivElement) {
 function parseMarkdown(html: string) {
   let parsedHtml = html.slice(0);
 
+  // Add markdown link support
+  parsedHtml = parsedHtml.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    (_, text, url) => {
+      const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+      return `<a href="${formattedUrl}" class="text-entity-link"`
+        + ` data-entity-type="${ApiMessageEntityTypes.TextUrl}">${text}</a>`;
+    },
+  );
+
+  // Add quote formatting similar to code blocks
+  parsedHtml = parsedHtml.replace(
+    /^>{3}(.*?)[\n\r](.*?[\n\r]?)>{3}/gms,
+    '<blockquote data-language="$1">$2</blockquote>',
+  );
+  parsedHtml = parsedHtml.replace(/^>{3}[\n\r]?(.*?)[\n\r]?>{3}/gms, '<blockquote>$1</blockquote>');
+  parsedHtml = parsedHtml.replace(/[>]{3}([^>]+)[>]{3}/g, '<blockquote>$1</blockquote>');
+
   // Strip redundant nbsp's
   parsedHtml = parsedHtml.replace(/&nbsp;/g, ' ');
 
@@ -97,10 +115,10 @@ function parseMarkdown(html: string) {
   parsedHtml = parsedHtml.replace(/^`{3}[\n\r]?(.*?)[\n\r]?`{3}/gms, '<pre>$1</pre>');
   parsedHtml = parsedHtml.replace(/[`]{3}([^`]+)[`]{3}/g, '<pre>$1</pre>');
 
-  // Code
+  // Code (monospace) - updated pattern to handle inline code
   parsedHtml = parsedHtml.replace(
-    /(?!<(code|pre)[^<]*|<\/)[`]{1}([^`\n]+)[`]{1}(?![^<]*<\/(code|pre)>)/g,
-    '<code>$2</code>',
+    /(?!<(code|pre)[^<]*|<\/)`([^`\n]+)`(?![^<]*<\/(code|pre)>)/g,
+    '<code class="text-entity-code" dir="auto">$2</code>',
   );
 
   // Custom Emoji markdown tag

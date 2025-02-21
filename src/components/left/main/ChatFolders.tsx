@@ -28,10 +28,13 @@ import useLang from '../../../hooks/useLang';
 import useLastCallback from '../../../hooks/useLastCallback';
 import useShowTransition from '../../../hooks/useShowTransition';
 
+import Icon from '../../common/icons/Icon';
 import StoryRibbon from '../../story/StoryRibbon';
 import TabList from '../../ui/TabList';
 import Transition from '../../ui/Transition';
 import ChatList from './ChatList';
+
+import styles from './ChatFolders.module.scss';
 
 type OwnProps = {
   onSettingsScreenSelect: (screen: SettingsScreens) => void;
@@ -60,6 +63,26 @@ type StateProps = {
 
 const SAVED_MESSAGES_HOTKEY = '0';
 const FIRST_FOLDER_INDEX = 0;
+
+const getFolderIcon = (folder: ApiChatFolder) => {
+  if (folder.id === ALL_FOLDER_ID) return 'chats-badge';
+  const titleLower = folder.title.text.toLowerCase().trim();
+  // Exact matches for folder names
+  switch (titleLower) {
+    case 'all and groups':
+      return 'chats-badge';
+    case 'groups':
+      return 'group';
+    case 'bots':
+      return 'bots';
+    case 'channel':
+      return 'channel';
+    case 'personal':
+      return 'user';
+    default:
+      return 'folder-badge';
+  }
+};
 
 const ChatFolders: FC<OwnProps & StateProps> = ({
   foldersDispatch,
@@ -196,14 +219,37 @@ const ChatFolders: FC<OwnProps & StateProps> = ({
         });
       }
 
+      const iconName = getFolderIcon(folder);
+
       return {
         id,
-        title: renderTextWithEntities({
-          text: title.text,
-          entities: title.entities,
-          noCustomEmojiPlayback: folder.noTitleAnimations,
-        }),
-        badgeCount: folderCountersById[id]?.chatsCount,
+        title: (
+          <div className={styles.tabContent}>
+            <div className={styles.iconWrapper}>
+              <Icon name={iconName} className={styles.tabIcon} />
+              {Boolean(folderCountersById[id]?.chatsCount) && (
+                <div
+                  className={buildClassName(
+                    styles.counter,
+                    Boolean(
+                      folderCountersById[id]?.chatsCount > 0
+                      && folderCountersById[id]?.notificationsCount === 0,
+                    ) && styles.muted,
+                  )}
+                >
+                  {folderCountersById[id]?.chatsCount}
+                </div>
+              )}
+            </div>
+            <span className={styles.tabText}>
+              {renderTextWithEntities({
+                text: title.text,
+                entities: title.entities,
+                noCustomEmojiPlayback: folder.noTitleAnimations,
+              })}
+            </span>
+          </div>
+        ),
         isBadgeActive: Boolean(folderCountersById[id]?.notificationsCount),
         isBlocked,
         contextActions: contextActions?.length ? contextActions : undefined,
@@ -292,10 +338,7 @@ const ChatFolders: FC<OwnProps & StateProps> = ({
     };
   }, [currentUserId, folderTabs, openChat, setActiveChatFolder]);
 
-  const {
-    ref: placeholderRef,
-    shouldRender: shouldRenderPlaceholder,
-  } = useShowTransition({
+  useShowTransition({
     isOpen: !orderedFolderIds,
     noMountTransition: true,
     withShouldRender: true,
@@ -323,27 +366,30 @@ const ChatFolders: FC<OwnProps & StateProps> = ({
   }
 
   const shouldRenderFolders = folderTabs && folderTabs.length > 1;
+  /*
+  const toggleFolders = () => {
+    setIsFoldersShown(!isFoldersShown);
+  };  */
 
   return (
     <div
       ref={ref}
       className={buildClassName(
-        'ChatFolders',
+        styles.ChatFolders,
         shouldRenderFolders && shouldHideFolderTabs && 'ChatFolders--tabs-hidden',
         shouldRenderStoryRibbon && 'with-story-ribbon',
+        shouldRenderFolders && styles.foldersShown,
       )}
     >
       {shouldRenderStoryRibbon && <StoryRibbon isClosing={isStoryRibbonClosing} />}
-      {shouldRenderFolders ? (
+      {shouldRenderFolders && (
         <TabList
           contextRootElementSelector="#LeftColumn"
           tabs={folderTabs}
           activeTab={activeChatFolder}
           onSwitchTab={handleSwitchTab}
         />
-      ) : shouldRenderPlaceholder ? (
-        <div ref={placeholderRef} className="tabs-placeholder" />
-      ) : undefined}
+      )}
       <Transition
         ref={transitionRef}
         name={shouldSkipHistoryAnimations ? 'none' : lang.isRtl ? 'slideOptimizedRtl' : 'slideOptimized'}

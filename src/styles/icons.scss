@@ -787,7 +787,7 @@ $icons-map: (
   content: map.get($icons-map, "quote-text");
 }
 .icon-quote::before {
-  content: map.get($icons-map, "quote");
+  content: "\e957";
 }
 .icon-radial-badge::before {
   content: map.get($icons-map, "radial-badge");

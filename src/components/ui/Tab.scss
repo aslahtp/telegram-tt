@@ -1,17 +1,17 @@
 .Tab {
   display: flex;
   justify-content: center;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   appearance: none;
   background: none;
-  width: auto;
+  width: 100%;
   margin: 0;
   border: none;
-  padding: 0.625rem 1.125rem;
+  padding: 0.25rem;
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-secondary);
-  border-top-left-radius: var(--border-radius-messages-small);
-  border-top-right-radius: var(--border-radius-messages-small);
+  border-radius: var(--border-radius-messages-small);
+  position: relative;
 
   &,
   &:active,
@@ -38,9 +38,17 @@
   &--active {
     cursor: var(--custom-cursor, default);
     color: var(--color-primary);
+    //background: var(--color-chat-active);
 
-    .platform {
-      opacity: 1 !important;
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0.1875rem;
+      background-color: var(--color-primary);
+      border-radius: 0 0.1875rem 0.1875rem 0;
     }
   }
 
@@ -49,13 +57,13 @@
     display: flex;
     align-items: center;
     white-space: nowrap;
-    gap: 1px; // Prevent custom emoji sticking to the text
+    gap: 1px;
   }
 
   .badge {
     min-width: 1.25rem;
     height: 1.25rem;
-    margin-inline-start: 0.5rem;
+    margin-inline-start: auto;
     background: var(--color-gray);
     border-radius: 0.75rem;
     padding: 0 0.3125rem;
@@ -78,32 +86,8 @@
 
   .blocked {
     position: absolute;
-    bottom: -0.625rem;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 0.5rem;
     font-size: 0.75rem;
-  }
-
-  .platform {
-    position: absolute;
-    bottom: -0.625rem;
-    left: -0.5rem;
-    right: -0.5rem;
-    opacity: 0;
-    background-color: var(--color-primary);
-    height: 0.1875rem;
-    border-radius: 0.1875rem 0.1875rem 0 0;
-    pointer-events: none;
-    box-sizing: content-box;
-    transform-origin: left;
-
-    &.animate {
-      transition: transform var(--slide-transition);
-
-      body.no-page-transitions & {
-        transition: none !important;
-      }
-    }
   }
 }
 
