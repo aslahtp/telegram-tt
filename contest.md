@@ -18,7 +18,6 @@
 • The component makes use of higher-order components (withGlobal) and selectors to tap into state like activeFolder, limits, and unread counters.
 • ChatFolders is made part of the entire Left Column layout (through LeftMain and LeftColumn) to maintain uniformity with other components (chat list, search, forum panel).
 
-This is how i incorporated into the UI with support for smooth transitions, efficient state updates, and responsive interactions.
 # Rework the existing text editor from scratch and eliminate its imperfections:
 - **proper support for edit history:** 
 	slight changes into the code
